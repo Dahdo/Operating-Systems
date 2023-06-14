@@ -1,0 +1,42 @@
+Client-server pair implements an asymmettric relationship between two communicating procs:
+- server: a process which is passively waiting at "a well know address" for a client request. The services offered are well known for the client and communication protocals.
+- client: a process which initiates communication to pass it request and possibly retrieve response.
+
+P2P connection
++ least vurnerable to computer crashes and server oveloading (load balancing)
++ Good stability
+
+- cannot statisfy high security standards
+- unpredictable availability and quality of access
+- possible problems with data coherence, and data versions
+
+SERVICE QUALITY CRITERIA
+--------------------------------
+exactness of fulfilling service specs
+response time: max, average, variability
+scalability
+security
+availability
+
+HANDLING MULTIPLE COMMUNICATION CHANNELS:
+- Blocking I/O operations (threads, sub procs)
+- Synchronous I/O multiplexing
+- Non blocking I/O operations
+- Signal controlled
+
+1. Blocking I/O operations:
+write, send, sendto
+read, recvfrom, recv
+accept, connect
+
+2. Synchronous I/O multiplexing
+select, poll, epoll, pselect (differs from select by time spec and by blocking signals right away)
+- using connect with pselect to handle the premature return from connect function.
+
+3. Non blocking I/O operations:
+2 techniques to put a descriptor in non blocking mode:
+ioctl with FIONBIO flag
+fcntl with F_GETFL and with FNDELAY flags,.. 
+when the connect function is called on a socket in non blocking mode and it fails, there is not need to retry it. The process is run asychronously in the background and the result can be checked by function calls like select, pselect to check if the socket is ready for writing for example.
+
+the listening socket in this case has to be in blocking mode to counteract the effects of premature exiting of connect function when accept function hasn't actually finished ( ex. when it has blocked the reading socket by the call of select function.)

@@ -1,0 +1,82 @@
+IPC
+---------------
+1. Shared Memory:
++ communication is under control of user procs not the kernel after it has successful created a shared access to the momory.
++ Provides maximum communication speed if synchronization allows
+- Synchronization of buffer read/write operations is a major issue.
+
+2. Message passing:
++ producer and consumer do not share a region of memory(they can even run on different systems)
++ sychronization can be provided by system (blocking implementation of send/receive)
+- implemented with sys calls -> user-kernel-user switch overhead
+- data copying causes a common overhead (avoided by copying refs to buffer instead. protected from modification till content is consumed).
+
+Synchronization means:
+Signal, Shared files, Mutex, Process exit code, Standard streams, posix pipes and FIFOs. Semaphores, network based sockets.
+=====================================================================
+FIFOs and pipes
+--------------------
+- FIFO: a type of file with property that data written to such file is read on a first-in-first-out basis.
+- Pipe: An object accessed by one of the pair of descriptors created with call to pipe() function. They are not visible in the file system hierarchy
+=====================================================================
+3. Posix Queues
+----------------------
+- Posix IPC objects have mostly kernel persistance (with notable exception of semaphores in memory which is proc persistant)
+Message queues, Memory mapping of files, Posix shared Memory
+ - Unix System V IPC objects have kernel persistance as well
+ 
+===================================================================
+Posix Synchronization:
+-----------------------
+Semaphores, Mutex, Barrier, Condition variable, Read-Write Lock
+===================================================================
+
+OSI Model:
+-------------
+Layer 1: Physical layer: handles the mechanical and electrical details
+of physical transmission of bit stream.
+
+Layer 2: Data link layer: handles frames or fixed-length parts of packets including error detection and recovery of errors made in the physical layer.
+
+Layer 3: Network layer: provides connection and routes packets in the communication network including handling address of the outgoing packets and decoding address of the incoming packets, and maintaining routing information for proper response to changing load levels
+
+Layer 4: Transport Layer: responsible for low level network access and for message transfer between clients including partitioning messages into packets, maintaining packet order, controlling the flow and generating physical address.
+
+Layer 5: Session Layer: implements session. A proc-to-proc communication protocal.
+
+Layer 6: Presentation Layer: resolves the differences in formats among various sites in network, including char conversion, half duplex/full duplex(echoing)
+
+Layer 7: Application Layer: Interacts direclty with the users, deals with file transfer, remote login protocals and electronic mail as well as schemas for distributed databases.
+
+
+TCP working:
+---------------
+The three-way handshake:
+1. First, the requesting client sends the server a SYN packet or segment (SYN stands for synchronize) with a unique, random number. This number ensures full transmission in the correct order (without duplicates).
+
+2.If the server has received the segment, it agrees to the connection by returning a SYN-ACK packet (ACK stands for acknowledgment) including the client's sequence number plus 1. It also transmits its own sequence number to the client.
+
+3. Finally, the client acknowledges the receipt of the SYN-ACK segment by sending its own ACK packet, which in this case contains the server's sequence number plus 1. At the same time, the client can already begin transferring data to the server.
+
+Under the hood(OPS):
+- TCP software allocates a receiving buffer, then it sends its size to the other side of
+communication.
+
+ -While data arrive the recipient sends back acknowledgment and information about
+free space in the receiving buffer (so called window size)..
+- Sender which received zero window size offer has to stop sending data  until the
+recipient offers positive window size.
+
+- If TCP detects segment loss – it sends one segment and waits for acknowledgment.
+When the acknowledgment arrives 2 segments are sent and the sender waits for
+acknowledgment, and so. Altogether an exponential increase of the number of
+segments sent ahead of acknowledgment can be seen – until half of the offered
+window size is filled.
+
+two-way termination:
+1. The client sends a FIN segment to notify the server that it no longer wants to send data. It sends its own sequence number, just as it does when the connection is established.
+
+2. The server acknowledges receipt of the package with an ACK segment that contains the sequence number plus 1.
+
+3. When the server has finished the data transfer, it also sends a FIN packet, to which it adds its sequence number.
+4. Now it is the client's turn to send an ACK packet including the sequence number plus 1, which officially terminates the TCP connection for the server.
